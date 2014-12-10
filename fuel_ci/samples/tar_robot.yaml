@@ -1,0 +1,5 @@
+artifacts:
+  robots:
+    url: "https://www.mirantis.com/robots.txt"
+    path: "robots.txt"
+    archive: "robots.tar.gz"
