@@ -1,0 +1,27 @@
+repositories:
+  fuel_web:
+    url: "https://github.com/stackforge/fuel-web.git"
+    path: "fuel-web"
+    package_path: "fuel-web/nailgun"
+
+# artifact_storages:
+#   local_storage:
+#     drivers:
+#       storage: "localfs"
+#     url: "file://test_storage"
+
+# artifacts:
+#   robots:
+#     path: "robots.txt"
+#     version: "==0.1"  # "latest"
+#     archive: "robots.txt"
+#     description: "Very cool artifact"
+#     storage: "local_storage"
+
+packages:
+  robots:
+    drivers:
+      package: "python_package"
+
+scenario:
+  - build_package

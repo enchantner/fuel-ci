@@ -1,59 +1,77 @@
 # -*- coding: utf-8 -*-
 
-import argparse
-import os
+import abc
+from functools import reduce
+from itertools import starmap
 
-import yaml
+import six
+
+from fuel_ci.objects import artifact
+from fuel_ci.objects import artifact_storage
+from fuel_ci.objects import repo
+from fuel_ci.objects import package
+from fuel_ci.scenarios import base as base_scenario
 
 
-class BaseFlow(object):
+@six.add_metaclass(abc.ABCMeta)
+class AbstractFlow(object):
 
-    config_file = None
-
-    def __init__(self):
-        self.parse_args()
-
-        self.artifacts = {}
-
-        with open(self.config_file, "r") as conf:
-            config = yaml.load(conf.read())
-        if 'artifacts' in config:
-            self.artifacts = config['artifacts']
-
-    def artifact(self, name):
-        if name in self.artifacts:
-            return type(name, (object,), self.artifacts[name])
-        raise Exception("artifact '{0}' not found in config")
-
-    def parse_args(self):
-        self.parser = argparse.ArgumentParser()
-        params, args = self.parser.parse_known_args()
-        if not args:
-            raise Exception("config file not specified")
-        self.config_file = args[0]
-        if not os.path.exists(self.config_file):
-            raise Exception(
-                "config file '{0}' does not exist".format(self.config_file)
-            )
-
-    def prepare(self):
+    @abc.abstractmethod
+    def run(self):
         pass
 
-    def build(self):
-        pass
 
-    def test(self):
-        pass
+class BaseFlow(AbstractFlow):
 
-    def publish(self):
-        pass
+    def __init__(self, data, build_dir, scenario=None):
+        self.objects = self._load_objects(data)
+        self.build_dir = build_dir
+        self._stages = []
 
-    def clean(self):
-        pass
+        if not scenario and "scenario" in data:
+            for stage in data["scenario"]:
+                method_path = stage.split(".")
+                if len(method_path) == 1:
+                    method = "build"
+                else:
+                    method = method_path[1]
+                module = __import__(
+                    "fuel_ci.scenarios.{0}".format(stage),
+                    fromlist=[""]
+                )
+                self.add_stage(getattr(module, method))
+        else:
+            self.set_scenario(scenario or (
+                base_scenario.prepare,
+                base_scenario.build,
+                base_scenario.test,
+                base_scenario.publish,
+                base_scenario.clean
+            ))
+
+    def _load_objects(self, data):
+        res = data.copy()
+        _build_objects = lambda key, c: list(
+            starmap(c, res[key].items())
+        )
+        for entity, c in {
+            "artifacts": artifact.Artifact,
+            "artifact_storages": artifact_storage.ArtifactStorage,
+            "repositories": repo.Repository,
+            "packages": package.Package
+        }.items():
+            if entity in res:
+                res[entity] = _build_objects(entity, c)
+        return res
+
+    def set_scenario(self, stages):
+        self._stages = stages
+
+    def add_stage(self, stage):
+        self._stages.append(stage)
 
     def run(self):
-        self.prepare()
-        self.build()
-        self.test()
-        self.publish()
-        self.clean()
+        last_result = self.objects
+        for stage in self._stages:
+            last_result = stage(last_result)
+        return last_result
