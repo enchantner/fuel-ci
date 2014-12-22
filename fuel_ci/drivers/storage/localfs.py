@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Driver for artifact storage based on filesystem
+"""
+
 import logging
 import os
 import shutil
@@ -10,8 +14,14 @@ LOG = logging.getLogger(__name__)
 
 
 class LocalFSDriver(object):
+    """Class for local FS artifact storage driver
+    """
 
     def __init__(self, obj):
+        """Constructs new local FS driver object
+
+        :param obj: (ArtifactStorage) object with "url" attribute
+        """
         self.obj = obj
         self.localpath = obj.url
 
@@ -30,15 +40,35 @@ class LocalFSDriver(object):
         return eq, art_version
 
     def list_versions(self, storage, artifact):
+        """List versions of a given artifact available in current storage
+
+        :param storage: (ArtifactStorage) object
+        :param artifact: (Artifact) object with "name" attribute
+        :returns: list of versions (strings)
+        """
         versions_path = os.path.join(self.localpath, artifact.name)
         return list(map(lambda v: v.split("-")[1], os.listdir(versions_path)))
 
     def download_artifact(self, storage, artifact):
+        """Search and download given artifact from current storage.
+        Copies an artifact from local FS storage to path specified as "path"
+        object attribute
+
+        :param storage: (ArtifactStorage) object
+        :param artifact: (Artifact) object with "name" and "url" attributes
+        :returns: object, passed as artifact
+        """
         artifact = self.search_artifact(artifact)
         shutil.copyfile(artifact.url, artifact.path)
         return artifact
 
     def search_artifact(self, storage, artifact):
+        """Search for given artifact in current storage
+
+        :param storage: (ArtifactStorage) object
+        :param artifact: (Artifact) object with "name" and "url" attributes
+        :returns: object, passed as artifact, if found
+        """
         if artifact.name not in os.listdir(self.localpath):
             raise Exception(
                 "Can't find artifact '{0}' in storage '{1}'".format(
@@ -74,9 +104,17 @@ class LocalFSDriver(object):
             artifact.meta = yaml.load(mf.read())
         return artifact
 
-    def publish_artifact(self, artifact):
+    def publish_artifact(self, storage, artifact):
+        """Publish given artifact in current storage. Copies given artifact
+        to local filesystem as binary file + meta.yaml, according to version
+
+        :param storage: (ArtifactStorage) object
+        :param artifact: (Artifact) object with "name",
+                         "version", "archive", "packed" and "meta" attributes
+        :returns: object, passed as artifact, if found
+        """
         if not artifact.packed:
-            raise Exception("")
+            raise Exception("Artifact should be packed before publishing")
         versions_path = os.path.join(self.localpath, artifact.name)
         if not os.path.exists(versions_path):
             os.mkdir(versions_path)
@@ -98,4 +136,5 @@ class LocalFSDriver(object):
         return artifact
 
 
+#: transforming LocalFSDriver class into driver
 driver_class = LocalFSDriver

@@ -1,7 +1,22 @@
 # -*- coding: utf-8 -*-
 
+"""
+Base scenario for artifact-based build. Includes 5 stages:
+
+1. prepare
+2. build
+3. test
+4. publish
+5. clean
+"""
+
 
 def prepare(objects):
+    """Clones all repos, downloads all artifacts and unpacks them
+
+    :param objects: dict of objects loaded from YAML
+    """
+
     # list(map(lambda r: r.clone(), repos))
     storage = None
     for art in objects["artifacts"]:
@@ -28,16 +43,32 @@ def prepare(objects):
 
 
 def build(objects):
+    """TODO
+
+    :param objects: dict of objects loaded from YAML
+    """
     return objects
 
 
 def test(objects):
+    """TODO
+
+    :param objects: dict of objects loaded from YAML
+    """
     return objects
 
 
 def publish(objects):
+    """TODO
+
+    :param objects: dict of objects loaded from YAML
+    """
     return objects
 
 
 def clean(objects):
+    """TODO
+
+    :param objects: dict of objects loaded from YAML
+    """
     return objects

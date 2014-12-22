@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Flow - definition and guide &mdash; fuel-ci 0.0.1a documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="fuel-ci 0.0.1a documentation" href="index.html" />
+    <link rel="next" title="3. Objects description" href="objects.html" />
+    <link rel="prev" title="1. Fuel-CI Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objects.html" title="3. Objects description"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="1. Fuel-CI Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">fuel-ci 0.0.1a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="flow-definition-and-guide">
+<span id="flow"></span><h1>2. Flow - definition and guide<a class="headerlink" href="#flow-definition-and-guide" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#abstract-flow" id="id1">Abstract Flow</a></li>
+<li><a class="reference internal" href="#base-linear-flow" id="id2">Base (Linear) Flow</a></li>
+</ul>
+</div>
+<p>Flow object deals with scenario, which is represented as some abstract
+container (in most cases list or graph) with executable objects aka
+&#8220;stages&#8221;. All you can do with an instance of Flow object is specify some
+exact scenario and run it by calling flow.run() method, which is
+responsible for going through stages of the scenario and executing them.</p>
+<div class="section" id="abstract-flow">
+<h2><a class="toc-backref" href="#id1">2.1. Abstract Flow</a><a class="headerlink" href="#abstract-flow" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fuel_ci.flow.base.AbstractFlow">
+<em class="property">class </em><tt class="descclassname">fuel_ci.flow.base.</tt><tt class="descname">AbstractFlow</tt><a class="reference internal" href="_modules/fuel_ci/flow/base.html#AbstractFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.AbstractFlow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Abstract flow object</p>
+<dl class="method">
+<dt id="fuel_ci.flow.base.AbstractFlow.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#AbstractFlow.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.AbstractFlow.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract scenario runner</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="base-linear-flow">
+<h2><a class="toc-backref" href="#id2">2.2. Base (Linear) Flow</a><a class="headerlink" href="#base-linear-flow" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fuel_ci.flow.base.BaseFlow">
+<em class="property">class </em><tt class="descclassname">fuel_ci.flow.base.</tt><tt class="descname">BaseFlow</tt><big>(</big><em>data</em>, <em>build_dir</em>, <em>scenario=None</em><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#BaseFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.BaseFlow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuel_ci.flow.base.AbstractFlow" title="fuel_ci.flow.base.AbstractFlow"><tt class="xref py py-class docutils literal"><span class="pre">fuel_ci.flow.base.AbstractFlow</span></tt></a></p>
+<p>Base flow object. Implements linear scenario -
+all stages are run one after another and result of
+previous stage is passed to the next one.</p>
+<dl class="method">
+<dt id="fuel_ci.flow.base.BaseFlow.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>data</em>, <em>build_dir</em>, <em>scenario=None</em><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#BaseFlow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.BaseFlow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs new BaseFlow object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; dict of objects parsed from data YAML</li>
+<li><strong>build_dir</strong> &#8211; working directory for build</li>
+<li><strong>scenario</strong> &#8211; list of callable stages to execute</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fuel_ci.flow.base.BaseFlow.set_scenario">
+<tt class="descname">set_scenario</tt><big>(</big><em>stages</em><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#BaseFlow.set_scenario"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.BaseFlow.set_scenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets scenario (list of stages) to execute in current flow.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stages</strong> &#8211; list of callable stages</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fuel_ci.flow.base.BaseFlow.add_stage">
+<tt class="descname">add_stage</tt><big>(</big><em>stage</em><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#BaseFlow.add_stage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.BaseFlow.add_stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends stage to execute at the end of existing stage list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stages</strong> &#8211; list of callable stages</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fuel_ci.flow.base.BaseFlow.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fuel_ci/flow/base.html#BaseFlow.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fuel_ci.flow.base.BaseFlow.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runner method which implements linear scenario for stages
+defined in current flow - all stages are run one after another
+and result of previous stage is passed to the next one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">result of the last stage in list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Flow - definition and guide</a><ul>
+<li><a class="reference internal" href="#abstract-flow">2.1. Abstract Flow</a></li>
+<li><a class="reference internal" href="#base-linear-flow">2.2. Base (Linear) Flow</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">1. Fuel-CI Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="objects.html"
+                        title="next chapter">3. Objects description</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/flow.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objects.html" title="3. Objects description"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="1. Fuel-CI Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">fuel-ci 0.0.1a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Nikolay Markov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

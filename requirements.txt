@@ -1,0 +1,9 @@
+PyYAML==3.11
+argparse==1.2.1
+cffi==0.8.6
+pycparser==2.10
+pygit2==0.21.4
+requests==2.5.0
+six==1.8.0
+venvgit2==0.21.4.0
+wsgiref==0.1.2
