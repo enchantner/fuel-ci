@@ -11,8 +11,9 @@ import pygit2
 
 def repo_clone(repo):
     """Clone repo or checkout last changes on branch
+
     :param repo: (Repository) object with
-    "url", "path" and "branch" attributes
+                 "url", "path" and "branch" attributes
     """
 
     # TODO: if exists
