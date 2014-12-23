@@ -14,7 +14,7 @@ def pack(obj):
     :param obj: object with "path" attribute
     """
     tar = tarfile.open(obj.path, "w")
-    for name in os.path.listdir(obj.path):
+    for name in os.listdir(obj.path):
         tar.add(name)
     tar.close()
 

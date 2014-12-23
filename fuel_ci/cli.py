@@ -33,6 +33,7 @@ def main():
     if not "flow" in data:
         Flow = base.BaseFlow
     else:
+        # load custom flow from data
         flow_module, flow_class = data["flow"].split(":")
         Flow = getattr(__import__(
             flow_module,

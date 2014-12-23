@@ -25,6 +25,8 @@ class Artifact(base.BaseObject):
     meta = None
     #: description
     description = None
+    #: name of storage object to use
+    storage_name = None
 
     def __init__(self, name, data, drivers=None):
         """Constructs new artifact object

@@ -11,6 +11,6 @@ Contents:
 
    drivers/manager
    drivers/compress
-   drivers/cvs
+   drivers/vcs
    drivers/package
    drivers/storage

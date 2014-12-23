@@ -4,4 +4,4 @@ Control Version Systems Drivers
 Git
 ---
 
-.. automodule:: fuel_ci.drivers.cvs.git
+.. automodule:: fuel_ci.drivers.vcs.git

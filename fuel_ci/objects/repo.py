@@ -13,7 +13,7 @@ class Repository(base.BaseObject):
 
     #: default dict of driver categories and names to use
     drivers = {
-        "cvs": "git"
+        "vcs": "git"
     }
     #: default branch to checkout on repo clone
     branch = "master"
@@ -32,4 +32,4 @@ class Repository(base.BaseObject):
         """Call driver specified as "cvs" to clone current repo
         """
         LOG.debug("Cloning repo '{0}'...".format(self.url))
-        self.drivers["cvs"].repo_clone(self)
+        self.drivers["vcs"].repo_clone(self)

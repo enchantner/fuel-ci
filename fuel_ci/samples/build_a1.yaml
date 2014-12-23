@@ -1,0 +1,22 @@
+scenario:
+  - repository.checkout
+  - fuel_ci.samples.custom.pack_artifact
+
+objects:
+  repositories:
+    fuel_foo:
+      url: "https://github.com/enchantner/fuel-foo.git"
+      path: "fuel-foo"
+
+  artifact_storages:
+    local_storage:
+      drivers:
+        storage: "localfs"
+      url: "poc_storage"
+
+build_objects:
+  artifacts:
+    foo:
+      drivers:
+        compress: "tar"
+      version: "0.1"

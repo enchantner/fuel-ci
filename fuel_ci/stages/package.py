@@ -6,14 +6,14 @@ as an artifact
 """
 
 
-def build(objects):
+def build(state):
     """Default stage to execute.
 
-    :param objects: dict of objects loaded from YAML
+    :param state: dict of objects loaded from YAML
 
     Includes steps:
 
-    - Clone first repository specified in objects
+    - Clone first repository specified in state
       (:meth:`fuel_ci.objects.repo.Repository.clone`)
     - Build a package from repository
       (:meth:`fuel_ci.objects.package.Package.build`)
@@ -23,13 +23,11 @@ def build(objects):
       (:meth:`fuel_ci.objects.artifact_storage.ArtifactStorage.\
 publish_artifact`)
     """
-    repo = objects["repositories"][0]
-    repo.clone()
-    package = objects["packages"][0]
-    package.build(repo)
+    package = state["build_objects"]["packages"][0]
+    package.build(state["objects"]["repositories"][0])
 
-    build_artifact = objects["build_artifacts"][0]
-    storage = objects["artifact_storages"][0]
+    build_artifact = state["build_objects"]["artifacts"][0]
+    storage = state["objects"]["artifact_storages"][0]
     if storage.name != build_artifact.storage:
         raise Exception(
             "Storage name '{0}' differs from the one "
@@ -46,4 +44,4 @@ publish_artifact`)
         "description": build_artifact.description
     }
     storage.publish_artifact(build_artifact)
-    return objects
+    return state

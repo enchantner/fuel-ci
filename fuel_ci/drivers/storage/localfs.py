@@ -24,6 +24,8 @@ class LocalFSDriver(object):
         """
         self.obj = obj
         self.localpath = obj.url
+        if not os.path.exists(self.localpath):
+            os.mkdir(self.localpath)
 
     def _split_version(self, artifact_version):
         art_version = "latest"
@@ -60,6 +62,18 @@ class LocalFSDriver(object):
         """
         artifact = self.search_artifact(artifact)
         shutil.copyfile(artifact.url, artifact.path)
+        return artifact
+
+    def download_artifact_meta(self, storage, artifact):
+        """Search and download given artifact from current storage.
+        Sets
+
+        :param storage: (ArtifactStorage) object
+        :param artifact: (Artifact) object with "meta", "name" and "url"
+               attributes
+        :returns: object, passed as artifact
+        """
+        artifact = self.search_artifact(storage, artifact)
         return artifact
 
     def search_artifact(self, storage, artifact):

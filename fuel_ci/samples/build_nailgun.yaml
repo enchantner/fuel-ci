@@ -1,26 +1,34 @@
 scenario:
-  - build_package
+  - artifact.download_meta
+  #- repository.checkout
+  #- package.build
 
-repositories:
-  fuel_web:
-    url: "https://github.com/stackforge/fuel-web.git"
-    path: "fuel-web"
-    package_path: "fuel-web/nailgun"
+objects:
+  repositories:
+    fuel_web:
+      url: "https://github.com/stackforge/fuel-web.git"
+      path: "fuel-web"
+      package_path: "fuel-web/nailgun"
 
-packages:
-  robots:
-    drivers:
-      package: "python_package"
+  artifact_storages:
+    local_storage:
+      drivers:
+        storage: "localfs"
+      url: "test_storage"
 
-artifact_storages:
-  local_storage:
-    drivers:
-      storage: "localfs"
-    url: "test_storage"
+  artifacts:
+    foo:
+      version: "0.1"  # "latest"
 
-build_artifacts:
-  nailgun:
-    version: "0.1"  # "latest"
-    description: "Nailgun API service"
-    storage: "local_storage"
-    packed: true
+build_objects:
+  packages:
+    robots:
+      drivers:
+        package: "python_package"
+
+  artifacts:
+    nailgun:
+      version: "0.1"  # "latest"
+      description: "Nailgun API service"
+      storage_name: "local_storage"
+      packed: true

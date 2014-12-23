@@ -6,6 +6,7 @@ AbstractFlow and BaseFlow definitions
 
 import abc
 from itertools import starmap
+import logging
 
 import six
 
@@ -13,7 +14,8 @@ from fuel_ci.objects import artifact
 from fuel_ci.objects import artifact_storage
 from fuel_ci.objects import repo
 from fuel_ci.objects import package
-from fuel_ci.scenarios import base as base_scenario
+
+LOG = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -42,30 +44,49 @@ class BaseFlow(AbstractFlow):
         :param scenario: list of callable stages to execute
         """
 
-        self.objects = self._load_objects(data)
+        self.state = self._load_objects(data)
         self.build_dir = build_dir
         self._stages = []
 
         if not scenario and "scenario" in data:
-            for stage in data["scenario"]:
-                method_path = stage.split(".")
-                if len(method_path) == 1:
-                    method = "build"
-                else:
-                    method = method_path[1]
-                module = __import__(
-                    "fuel_ci.scenarios.{0}".format(stage),
-                    fromlist=[""]
-                )
-                self.add_stage(getattr(module, method))
+            self._load_scenario(data)
+        elif scenario:
+            self.set_scenario(scenario)
         else:
-            self.set_scenario(scenario or (
-                base_scenario.prepare,
-                base_scenario.build,
-                base_scenario.test,
-                base_scenario.publish,
-                base_scenario.clean
-            ))
+            raise Exception("No scenario to execute")
+
+    def _load_scenario(self, data):
+        """Load scenarios specified in data (in YAML)
+
+        :param data: dict of objects parsed from data YAML
+        """
+        for stage in data["scenario"]:
+            third_party = False
+            method_path = stage.split(".")
+            method_path_len = len(method_path)
+            if method_path_len == 1:
+                method = "build"
+            elif method_path_len == 2:
+                stage, method = method_path
+            else:
+                third_party = True
+                method = method_path.pop()
+                stage = ".".join(method_path)
+
+            # TODO: external
+            LOG.debug(
+                "Preparing stage {0}.{1}...".format(
+                    stage,
+                    method
+                )
+            )
+            if not third_party:
+                stage = "fuel_ci.stages.{0}".format(stage)
+            module = __import__(
+                stage,
+                fromlist=[""]
+            )
+            self.add_stage(getattr(module, method))
 
     def _load_objects(self, data):
         """Converts data YAML from dict of strings to dict of
@@ -75,8 +96,8 @@ class BaseFlow(AbstractFlow):
         :returns: dict of objects of the same tree as an argument
         """
         res = data.copy()
-        _build_objects = lambda key, c: list(
-            starmap(c, res[key].items())
+        _build_objects = lambda section, key, c: list(
+            starmap(c, res[section][key].items())
         )
         for entity, c in {
             "artifacts": artifact.Artifact,
@@ -85,8 +106,9 @@ class BaseFlow(AbstractFlow):
             "repositories": repo.Repository,
             "packages": package.Package
         }.items():
-            if entity in res:
-                res[entity] = _build_objects(entity, c)
+            for section in ("objects", "build_objects"):
+                if entity in res[section]:
+                    res[section][entity] = _build_objects(section, entity, c)
         return res
 
     def set_scenario(self, stages):
@@ -110,7 +132,7 @@ class BaseFlow(AbstractFlow):
 
         :returns: result of the last stage in list
         """
-        last_result = self.objects
+        last_result = self.state
         for stage in self._stages:
             last_result = stage(last_result)
         return last_result

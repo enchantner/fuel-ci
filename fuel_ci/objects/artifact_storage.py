@@ -33,6 +33,13 @@ class ArtifactStorage(base.BaseObject):
         LOG.debug("Downloading artifact '{0}'...".format(artifact))
         self.drivers["storage"].download_artifact(self, artifact)
 
+    def download_artifact_meta(self, artifact):
+        """Call driver specified as "storage" to find and download
+        meta for specified artifact
+        """
+        LOG.debug("Downloading meta for artifact '{0}'...".format(artifact))
+        self.drivers["storage"].download_artifact_meta(self, artifact)
+
     def search_artifact(self, artifact):
         """Call driver specified as "storage" to search for
         specified artifact
