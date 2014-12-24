@@ -65,7 +65,7 @@ class BaseFlow(AbstractFlow):
             method_path = stage.split(".")
             method_path_len = len(method_path)
             if method_path_len == 1:
-                method = "build"
+                method = "scenario"
             elif method_path_len == 2:
                 stage, method = method_path
             else:

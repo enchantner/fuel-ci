@@ -1,10 +1,10 @@
-scenario:
-  - repository.checkout
-  - fuel_ci.samples.custom.pack_artifact
+scenario: build_mirror
 
 objects:
   repositories:
     fuel_foo:
+      meta:
+        packages_file: "sample_packages.txt"
       url: "https://github.com/enchantner/fuel-foo.git"
       path: "fuel-foo"
 
@@ -15,6 +15,11 @@ objects:
       url: "poc_storage"
 
 build_objects:
+  mirror:
+    foo:
+      drivers:
+        repo: null
+      path: "fuel-foo"
   artifacts:
     foo:
       drivers:

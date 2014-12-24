@@ -4,19 +4,20 @@
 Driver for creating tar archives
 """
 
-import os
 import tarfile
 
 
 def pack(obj):
     """Pack object into tar archive
 
-    :param obj: object with "path" attribute
+    :param obj: (Artifact) object with "name" and "archive" attributes
     """
-    tar = tarfile.open(obj.path, "w")
-    for name in os.listdir(obj.path):
-        tar.add(name)
+    tar = tarfile.open(obj.name, "w")
+    for path in obj.content:
+        # TODO: check if file or directory
+        tar.add(path)
     tar.close()
+    obj.archive = obj.name
 
 
 def unpack(obj):

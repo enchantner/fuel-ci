@@ -8,8 +8,6 @@ import logging
 import os
 import shutil
 
-import yaml
-
 LOG = logging.getLogger(__name__)
 
 
@@ -113,9 +111,9 @@ class LocalFSDriver(object):
             # TODO
             pass
         artifact.url = os.path.join(found_path, artifact.name)
-        meta_file = os.path.join(found_path, "meta.yaml")
+        meta_file = os.path.join(found_path, "metadata")
         with open(meta_file, "r") as mf:
-            artifact.meta = yaml.load(mf.read())
+            artifact.meta = mf.read()
         return artifact
 
     def publish_artifact(self, storage, artifact):
@@ -143,10 +141,10 @@ class LocalFSDriver(object):
         # TODO: eq != "=="
         # TODO: "latest"
         art_filename = os.path.join(exact_version_path, artifact.name)
-        meta_file = os.path.join(exact_version_path, "meta.yaml")
+        meta_file = os.path.join(exact_version_path, "metadata")
         shutil.copyfile(artifact.archive, art_filename)
         with open(meta_file, "w") as mf:
-            mf.write(yaml.dump(artifact.meta))
+            mf.write(artifact.meta)
         return artifact
 
 

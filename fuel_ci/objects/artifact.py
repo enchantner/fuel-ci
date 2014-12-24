@@ -19,8 +19,6 @@ class Artifact(base.BaseObject):
     version = "latest"
     #: url or localpath
     url = None
-    #: local path to packed artifact
-    archive = None
     #: metadata
     meta = None
     #: description
@@ -38,6 +36,10 @@ class Artifact(base.BaseObject):
         super(Artifact, self).__init__(data, drivers)
         self.name = name
         self.packed = True
+        self.content = []
+
+    def add(self, obj):
+        self.content.append(obj.path)
 
     def unpack(self):
         """Call driver specified as "compress" to unpack current artifact
