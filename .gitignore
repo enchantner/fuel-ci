@@ -1,4 +1,4 @@
 *.pyc
 *.egg-info
 docs/_build
-fuel_ci/samples/fuel-*
+!samples/*.yaml

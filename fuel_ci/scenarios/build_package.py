@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import yaml
+
 """
 Scenario for building package from repo and publishing is
 as an artifact
@@ -25,23 +27,15 @@ publish_artifact`)
     """
     package = state["build_objects"]["packages"][0]
     package.build(state["objects"]["repositories"][0])
-
     build_artifact = state["build_objects"]["artifacts"][0]
     storage = state["objects"]["artifact_storages"][0]
-    if storage.name != build_artifact.storage:
-        raise Exception(
-            "Storage name '{0}' differs from the one "
-            "specified in build_artifact: '{1}'".format(
-                storage.name,
-                build_artifact.name
-            )
-        )
-    build_artifact.archive = package.path
+
+    build_artifact.add(package)
     if not build_artifact.packed:
         build_artifact.pack()
-    build_artifact.meta = {
+    build_artifact.meta = yaml.dump({
         "version": build_artifact.version,
         "description": build_artifact.description
-    }
+    })
     storage.publish_artifact(build_artifact)
     return state
