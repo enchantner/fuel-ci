@@ -1,4 +1,17 @@
 # -*- coding: utf-8 -*-
+#    Copyright 2014 Mirantis, Inc.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
 import logging
 
@@ -13,7 +26,7 @@ class Artifact(base.BaseObject):
 
     #: default dict of driver categories and names to use
     drivers = {
-        "compress": None
+        "pack": None
     }
     #: version
     version = "latest"
@@ -42,15 +55,15 @@ class Artifact(base.BaseObject):
         self.content.append(obj.path)
 
     def unpack(self):
-        """Call driver specified as "compress" to unpack current artifact
+        """Call driver specified as "pack" to unpack current artifact
         """
         LOG.debug("Unpacking artifact '{0}'...".format(self))
-        self.drivers["compress"].unpack(self)
+        self.drivers["pack"].unpack(self)
         self.packed = False
 
     def pack(self):
-        """Call driver specified as "compress" to pack current artifact
+        """Call driver specified as "pack" to pack current artifact
         """
         LOG.debug("Packing artifact '{0}'...".format(self))
-        self.drivers["compress"].pack(self)
+        self.drivers["pack"].pack(self)
         self.packed = True
