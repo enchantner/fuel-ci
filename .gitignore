@@ -4,3 +4,8 @@ docs/_build
 
 samples/*
 !samples/*.yaml
+
+draft
+.venv
+.tox
+.idea
