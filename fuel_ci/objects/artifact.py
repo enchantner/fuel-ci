@@ -26,7 +26,7 @@ class Artifact(base.BaseObject):
 
     #: default dict of driver categories and names to use
     drivers = {
-        "compress": None
+        "pack": None
     }
     #: version
     version = "latest"
@@ -55,15 +55,15 @@ class Artifact(base.BaseObject):
         self.content.append(obj.path)
 
     def unpack(self):
-        """Call driver specified as "compress" to unpack current artifact
+        """Call driver specified as "pack" to unpack current artifact
         """
         LOG.debug("Unpacking artifact '{0}'...".format(self))
-        self.drivers["compress"].unpack(self)
+        self.drivers["pack"].unpack(self)
         self.packed = False
 
     def pack(self):
-        """Call driver specified as "compress" to pack current artifact
+        """Call driver specified as "pack" to pack current artifact
         """
         LOG.debug("Packing artifact '{0}'...".format(self))
-        self.drivers["compress"].pack(self)
+        self.drivers["pack"].pack(self)
         self.packed = True

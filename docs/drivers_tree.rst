@@ -10,7 +10,7 @@ Contents:
    :numbered:
 
    drivers/manager
-   drivers/compress
+   drivers/pack
    drivers/vcs
    drivers/package
    drivers/storage
