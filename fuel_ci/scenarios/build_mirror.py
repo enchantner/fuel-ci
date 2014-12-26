@@ -14,14 +14,13 @@
 #    under the License.
 
 import os
-import yaml
 
 
-def scenario(data):
-    repo = data["objects"]["repositories"][0]
-    storage = data["objects"]["artifact_storages"][0]
-    mirror = data["build_objects"]["mirror"][0]
-    artifact = data["build_objects"]["artifacts"][0]
+def scenario(index):
+    repo = index.repositories()[0]
+    storage = index.artifact_storages()[0]
+    mirror = index.mirrors("build_objects")[0]
+    artifact = index.artifacts("build_objects")[0]
 
     repo.clone()
     if "packages_file" in repo.meta:
@@ -30,6 +29,7 @@ def scenario(data):
             mirror.set_packages(p.read().split())
 
     artifact.add(mirror)
-    artifact.meta = yaml.dump({"packages": mirror.packages})
+    artifact.meta = {"packages": mirror.packages}
     artifact.pack()
     storage.publish_artifact(artifact)
+    return index

@@ -13,15 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import yaml
-
 """
 Scenario for building package from repo and publishing is
 as an artifact
 """
 
 
-def build(state):
+def scenario(index):
     """Default stage to execute.
 
     :param state: dict of objects loaded from YAML
@@ -38,17 +36,18 @@ def build(state):
       (:meth:`fuel_ci.objects.artifact_storage.ArtifactStorage.\
 publish_artifact`)
     """
-    package = state["build_objects"]["packages"][0]
-    package.build(state["objects"]["repositories"][0])
-    build_artifact = state["build_objects"]["artifacts"][0]
-    storage = state["objects"]["artifact_storages"][0]
+    package = index.packages()[0]
+    repo = index.repositories()[0]
+    storage = index.artifact_storages()[0]
+    build_artifact = index.artifacts("build_objects")[0]
 
+    package.build(repo)
     build_artifact.add(package)
     if not build_artifact.packed:
         build_artifact.pack()
-    build_artifact.meta = yaml.dump({
+    build_artifact.meta = {
         "version": build_artifact.version,
         "description": build_artifact.description
-    })
+    }
     storage.publish_artifact(build_artifact)
-    return state
+    return index

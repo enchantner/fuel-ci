@@ -13,33 +13,29 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import abc
 import logging
+
+import six
 
 from fuel_ci.objects import base
 
 LOG = logging.getLogger(__name__)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Repository(base.BaseObject):
-    """Repository object
+    """Abstract repository object
     """
 
-    #: default dict of driver categories and names to use
+
+class GitRepository(Repository):
+
     drivers = {
-        "vcs": "git"
+        "vcs": "pygit"
     }
-    #: default branch to checkout on repo clone
+
     branch = "master"
-
-    def __init__(self, name, data, drivers=None):
-        """Constructs new repository object
-
-        :param name: name of an artifact specified in YAML
-        :param data: artifact data specified in YAML
-        :param drivers: dict of driver categories and names to use
-        """
-        super(Repository, self).__init__(data, drivers)
-        self.name = name
 
     def clone(self):
         """Call driver specified as "cvs" to clone current repo

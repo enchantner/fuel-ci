@@ -29,16 +29,6 @@ class ArtifactStorage(base.BaseObject):
         "storage": "localfs"
     }
 
-    def __init__(self, name, data, drivers=None):
-        """Constructs new artifact storage object
-
-        :param name: name of an artifact specified in YAML
-        :param data: artifact data specified in YAML
-        :param drivers: dict of driver categories and names to use
-        """
-        super(ArtifactStorage, self).__init__(data, drivers)
-        self.name = name
-
     def download_artifact(self, artifact):
         """Call driver specified as "storage" to find and download
         specified artifact

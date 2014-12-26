@@ -31,16 +31,15 @@ class Mirror(base.BaseObject):
     #: list of packages
     packages = None
 
-    def __init__(self, name, data, drivers=None):
+    def __init__(self, **kwargs):
         """Constructs new mirror object
 
         :param name: name of an mirror specified in YAML
         :param data: mirror data specified in YAML
         :param drivers: dict of driver categories and names to use
         """
-        super(Mirror, self).__init__(data, drivers)
-        self.name = name
         self.built = False
+        super(Mirror, self).__init__(**kwargs)
 
     def set_packages(self, packages):
         self.packages = packages

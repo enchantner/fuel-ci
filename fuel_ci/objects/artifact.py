@@ -14,6 +14,7 @@
 #    under the License.
 
 import logging
+import uuid
 
 from fuel_ci.objects import base
 
@@ -39,16 +40,14 @@ class Artifact(base.BaseObject):
     #: name of storage object to use
     storage_name = None
 
-    def __init__(self, name, data, drivers=None):
+    def __init__(self, **kwargs):
         """Constructs new artifact object
 
         :param name: name of an artifact specified in YAML
         :param data: artifact data specified in YAML
         :param drivers: dict of driver categories and names to use
         """
-        super(Artifact, self).__init__(data, drivers)
-        self.name = name
-        self.packed = True
+        super(Artifact, self).__init__(**kwargs)
         self.content = []
 
     def add(self, obj):

@@ -46,9 +46,8 @@ def main():
         "data",
         params.data
     )
-    data = data_driver.parse_datafile(data_file)
-    scenario = data_driver.load_scenario(data)
-    scenario(data)
+    index = data_driver.parse_datafile(data_file)
+    index.main_scenario(index)
 
 
 if __name__ == "__main__":

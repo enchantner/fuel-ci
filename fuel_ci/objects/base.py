@@ -23,15 +23,15 @@ class BaseObject(object):
     #: default dict of driver categories and names to use
     drivers = {}
 
-    def __init__(self, data, drivers=None):
+    def __init__(self, **kwargs):
         """Constructor for base object
 
         :param data: artifact data specified in YAML
         :param drivers: dict of driver categories and names to use
         """
-        self.update(**data)
-        if drivers:
-            self.drivers = drivers
+        self.update(**kwargs)
+        if "drivers" in kwargs:
+            self.drivers = kwargs["drivers"]
         self.drivers = driver_manager.load_drivers(self)
 
     def update(self, **kwargs):

@@ -20,6 +20,11 @@ Driver for artifact storage based on filesystem
 import logging
 import os
 import shutil
+import time
+
+import six
+
+import yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -45,7 +50,6 @@ class LocalFSDriver(object):
             art_version = artifact_version
             eq = "=="
         elif artifact_version.startswith("=="):
-            art_version = artifact_version[2:]
             eq = "=="
         else:
             # TODO
@@ -126,7 +130,11 @@ class LocalFSDriver(object):
         artifact.url = os.path.join(found_path, artifact.name)
         meta_file = os.path.join(found_path, "metadata")
         with open(meta_file, "r") as mf:
-            artifact.meta = mf.read()
+            meta_content = mf.read()
+            try:
+                artifact.meta = yaml.load(meta_content)
+            except yaml.ParserError:
+                artifact.meta = meta_content
         return artifact
 
     def publish_artifact(self, storage, artifact):
@@ -145,19 +153,46 @@ class LocalFSDriver(object):
             os.mkdir(versions_path)
 
         eq, art_version = self._split_version(artifact.version)
-        exact_version_path = os.path.join(
-            versions_path,
-            "-".join((artifact.name, art_version))
+        art_version_wo_timestamp = art_version.split("-")[0]
+        art_version = art_version_wo_timestamp + "-{0}".format(time.time())
+
+        # rewriting symlink for current version
+        latest_version_path = os.path.abspath(
+            os.path.join(
+                versions_path,
+                "-".join((
+                    artifact.name,
+                    art_version_wo_timestamp,
+                    "latest"
+                ))
+            )
+        )
+        if os.path.exists(latest_version_path):
+            os.remove(latest_version_path)
+
+        exact_version_path = os.path.abspath(
+            os.path.join(
+                versions_path,
+                "-".join((artifact.name, art_version))
+            )
         )
         if not os.path.exists(exact_version_path):
             os.mkdir(exact_version_path)
+
+        os.symlink(exact_version_path, latest_version_path)
+
         # TODO: eq != "=="
-        # TODO: "latest"
-        art_filename = os.path.join(exact_version_path, artifact.name)
+        art_filename = os.path.join(
+            exact_version_path,
+            artifact.name
+        )
         meta_file = os.path.join(exact_version_path, "metadata")
         shutil.copyfile(artifact.archive, art_filename)
         with open(meta_file, "w") as mf:
-            mf.write(artifact.meta)
+            if isinstance(artifact.meta, (dict, list)):
+                mf.write(yaml.dump(artifact.meta))
+            elif isinstance(artifact.meta, six.string_type):
+                mf.write(artifact.meta)
         return artifact
 
 

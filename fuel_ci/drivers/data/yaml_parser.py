@@ -13,57 +13,45 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from itertools import starmap
 import logging
 
 import yaml
 
-from fuel_ci.objects import artifact
-from fuel_ci.objects import artifact_storage
-from fuel_ci.objects import repo
-from fuel_ci.objects import package
-from fuel_ci.objects import mirror
+from fuel_ci import index
 
 LOG = logging.getLogger(__name__)
 
 
-def parse_objects(data):
+def build_index(data):
     """Converts data YAML from dict of strings to dict of
     particular objects.
 
     :param data: dict of objects parsed from data YAML
     :returns: dict of objects of the same tree as an argument
     """
-    res = data.copy()
-    _build_objects = lambda section, key, c: list(
-        starmap(c, res[section][key].items())
-    )
-    for entity, c in {
-        "artifacts": artifact.Artifact,
-        "build_artifacts": artifact.Artifact,
-        "artifact_storages": artifact_storage.ArtifactStorage,
-        "repositories": repo.Repository,
-        "packages": package.Package,
-        "mirror": mirror.Mirror
-    }.items():
-        for section in ("objects", "build_objects"):
-            if entity in res[section]:
-                res[section][entity] = _build_objects(section, entity, c)
-    return res
+    data = data.copy()
+    ix = index.Index()
+    for section in data:
+        if section == "scenario":
+            ix.set_scenario(load_scenario(data["scenario"]))
+            continue
+        ix.add_section(section)
+        for item in data[section]:
+            ix.create_object(section, item)
+    return ix
 
 
 def parse_datafile(filename):
     with open(filename, "r") as conf:
         data = yaml.load(conf.read())
-    return parse_objects(data)
+    return build_index(data)
 
 
-def load_scenario(data):
-    """Load scenarios specified in data (in YAML)
+def load_scenario(scenario):
+    """Load scenarios specified as path to Python module
 
-    :param data: dict of objects parsed from data YAML
+    :param scenario: path to scenario as "my_package.my_module.my_scenario"
     """
-    scenario = data["scenario"]
     third_party = False
     method_path = scenario.split(".")
     method_path_len = len(method_path)
