@@ -13,46 +13,50 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import abc
 import logging
+
+import six
 
 from fuel_ci.objects import base
 
 LOG = logging.getLogger(__name__)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class ArtifactStorage(base.BaseObject):
-    """Artifact storage object
+    """Abstract artifact storage object
     """
 
-    #: default dict of driver categories and names to use
-    drivers = {
-        "storage": "localfs"
-    }
+
+class LocalArtifactStorage(ArtifactStorage):
+    """Artifact storage object
+    """
 
     def download_artifact(self, artifact):
         """Call driver specified as "storage" to find and download
         specified artifact
         """
         LOG.debug("Downloading artifact '{0}'...".format(artifact))
-        self.drivers["storage"].download_artifact(self, artifact)
+        self.driver_manager.download_artifact(self.url, artifact)
 
     def download_artifact_meta(self, artifact):
         """Call driver specified as "storage" to find and download
         meta for specified artifact
         """
         LOG.debug("Downloading meta for artifact '{0}'...".format(artifact))
-        self.drivers["storage"].download_artifact_meta(self, artifact)
+        self.driver_manager.download_artifact_meta(self.url, artifact)
 
     def search_artifact(self, artifact):
         """Call driver specified as "storage" to search for
         specified artifact
         """
         LOG.debug("Searching for artifact '{0}'...".format(artifact))
-        self.drivers["storage"].search_artifact(self, artifact)
+        self.driver_manager.search_artifact(self.url, artifact)
 
     def publish_artifact(self, artifact):
         """Call driver specified as "storage" to publish specified
         artifact to current storage
         """
         LOG.debug("Publishing artifact '{0}'...".format(artifact))
-        self.drivers["storage"].publish_artifact(self, artifact)
+        self.driver_manager.publish_artifact(self.url, artifact)

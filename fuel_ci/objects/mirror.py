@@ -24,10 +24,6 @@ class Mirror(base.BaseObject):
     """Mirror object
     """
 
-    #: default dict of driver categories and names to use
-    drivers = {
-        "mirror": None
-    }
     #: list of packages
     packages = None
 
@@ -44,9 +40,22 @@ class Mirror(base.BaseObject):
     def set_packages(self, packages):
         self.packages = packages
 
+
+class RPMMirror(Mirror):
+
     def build(self):
         """Call driver specified as "repo" to build current mirror
         """
         LOG.debug("Building mirror '{0}'...".format(self))
-        self.drivers["mirror"].build(self)
+        self.driver_manager.build_rpm_mirror(self)
+        self.built = True
+
+
+class DEBMirror(Mirror):
+
+    def build(self):
+        """Call driver specified as "repo" to build current mirror
+        """
+        LOG.debug("Building mirror '{0}'...".format(self))
+        self.driver_manager.build_deb_mirror(self)
         self.built = True

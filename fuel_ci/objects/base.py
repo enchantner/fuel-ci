@@ -13,26 +13,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from fuel_ci.drivers import manager as driver_manager
-
 
 class BaseObject(object):
     """Base object implementation
     """
 
-    #: default dict of driver categories and names to use
-    drivers = {}
-
-    def __init__(self, **kwargs):
+    def __init__(self, driver_manager, **kwargs):
         """Constructor for base object
 
         :param data: artifact data specified in YAML
         :param drivers: dict of driver categories and names to use
         """
+        self.build = False
         self.update(**kwargs)
-        if "drivers" in kwargs:
-            self.drivers = kwargs["drivers"]
-        self.drivers = driver_manager.load_drivers(self)
+        self.driver_manager = driver_manager
 
     def update(self, **kwargs):
         """Update current object fields according to specified arguments

@@ -18,6 +18,7 @@ import logging
 import os
 
 from fuel_ci.drivers import manager as driver_manager
+from fuel_ci.objects import manager as object_manager
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -42,12 +43,12 @@ def main():
             "data file '{0}' does not exist".format(data_file)
         )
 
-    data_driver = driver_manager.load_driver(
-        "data",
-        params.data
+    drv_manager = driver_manager.DriverManager()
+    obj_manager = object_manager.ObjectManager(
+        drv_manager.parse_datafile(data_file),
+        driver_manager=drv_manager
     )
-    index = data_driver.parse_datafile(data_file)
-    index.main_scenario(index)
+    obj_manager.main_scenario(obj_manager)
 
 
 if __name__ == "__main__":

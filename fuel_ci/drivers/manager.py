@@ -17,35 +17,38 @@
 Manager for loading drivers as Python modules
 """
 
-
-def load_driver(category, driver_name):
-    """Imports driver with a given name from a given category.
-
-    :param category: category to import driver from (string)
-    :param driver_name: driver name to import (string)
-    """
-    if driver_name is None:
-        return None
-    return __import__(
-        "fuel_ci.drivers.{0}.{1}".format(
-            category,
-            driver_name
-        ),
-        fromlist=[""]
-    )
+from fuel_ci.drivers import localfs
+from fuel_ci.drivers import pygit
+from fuel_ci.drivers import python_requests
+from fuel_ci.drivers import python_sdist
+from fuel_ci.drivers import python_tarfile
+from fuel_ci.drivers import yaml_parser
 
 
-def load_drivers(obj):
-    """Imports drivers from a dict in format name:category.
+class DriverManager(object):
 
-    :param obj: object with "drivers" attribute (dict)
-    """
-    drv_cache = obj.drivers.copy()
-    for cat, driver_name in drv_cache.items():
-        driver = load_driver(cat, driver_name)
-        if hasattr(driver, "driver_class"):
-            driver_object = driver.driver_class(obj)
+    _index = {
+        "parse_datafile": yaml_parser.parse_datafile,
+
+        "download_file_http": python_requests.download_file,
+        "pack_tar": python_tarfile.pack,
+        #  "pack_cpio": cpio.pack,
+        "build_python_package": python_sdist.build,
+        #  "build_rpm_package": ,
+
+        "download_artifact": localfs.download_artifact,
+        "search_artifact": localfs.search_artifact,
+        "publish_artifact": localfs.publish_artifact,
+
+        "git_clone": pygit.repo_clone
+    }
+
+    def __init__(self, index=None):
+        if index:
+            self._index.update(index)
+
+    def __getattr__(self, attr_name):
+        if attr_name in self._index:
+            return self._index[attr_name]
         else:
-            driver_object = driver
-        drv_cache[cat] = driver_object
-    return drv_cache
+            raise NotImplementedError(attr_name)

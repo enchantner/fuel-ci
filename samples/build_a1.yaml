@@ -2,27 +2,22 @@ scenario: build_mirror
 
 objects:
   - name: "fuel-foo"
-    meta:
-      packages_file: "sample_packages.txt"
     url: "https://github.com/enchantner/fuel-foo.git"
     type: "git"
     path: "fuel-foo"
+    meta:
+      packages_file: "sample_packages.txt"
 
   - name: "local_storage"
-    type: "artifact_storage"
-    drivers:
-      storage: "localfs"
+    type: "localfs"
     url: "poc_storage"
 
-build_objects:
   - name: "foo"
     type: "mirror"
-    drivers:
-      repo: null
     path: "fuel-foo"
+    build: true
 
   - name: "foo"
-    drivers:
-      pack: "tar"
     version: "0.1"
     type: "artifact"
+    build: true

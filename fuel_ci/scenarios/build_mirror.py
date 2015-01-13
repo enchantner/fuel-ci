@@ -15,21 +15,39 @@
 
 import os
 
+from fuel_ci.objects.repo import Repository
+from fuel_ci.objects.artifact_storage import ArtifactStorage
+from fuel_ci.objects.mirror import Mirror
+from fuel_ci.objects.artifact import Artifact
 
-def scenario(index):
-    repo = index.repositories()[0]
-    storage = index.artifact_storages()[0]
-    mirror = index.mirrors("build_objects")[0]
-    artifact = index.artifacts("build_objects")[0]
 
-    repo.clone()
-    if "packages_file" in repo.meta:
-        packages_file = os.path.join(repo.path, repo.meta["packages_file"])
-        with open(packages_file, "r") as p:
-            mirror.set_packages(p.read().split())
+def scenario(obj_manager):
+    clone_repos = obj_manager.lookup_by_class(Repository)
 
+    mirror = obj_manager.lookup(
+        obj_manager.lookup_by_class(Mirror),
+        build=True
+    )[0]
+
+    list(map(lambda r: r.clone(), clone_repos))
+
+    for repo in clone_repos:
+        if "packages_file" in repo.meta:
+            packages_file = os.path.join(repo.path, repo.meta["packages_file"])
+            with open(packages_file, "r") as p:
+                mirror.set_packages(p.read().split())
+
+    artifact = obj_manager.lookup(
+        obj_manager.lookup_by_class(Artifact),
+        build=True
+    )[0]
     artifact.add(mirror)
     artifact.meta = {"packages": mirror.packages}
     artifact.pack()
+
+    storage = obj_manager.lookup(
+        obj_manager.lookup_by_class(ArtifactStorage),
+        build=False,
+    )[0]
     storage.publish_artifact(artifact)
-    return index
+    return obj_manager

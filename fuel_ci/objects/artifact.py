@@ -14,7 +14,6 @@
 #    under the License.
 
 import logging
-import uuid
 
 from fuel_ci.objects import base
 
@@ -25,10 +24,6 @@ class Artifact(base.BaseObject):
     """Artifact object
     """
 
-    #: default dict of driver categories and names to use
-    drivers = {
-        "pack": None
-    }
     #: version
     version = "latest"
     #: url or localpath
@@ -64,5 +59,5 @@ class Artifact(base.BaseObject):
         """Call driver specified as "pack" to pack current artifact
         """
         LOG.debug("Packing artifact '{0}'...".format(self))
-        self.drivers["pack"].pack(self)
+        self.driver_manager.pack_tar(self)
         self.packed = True

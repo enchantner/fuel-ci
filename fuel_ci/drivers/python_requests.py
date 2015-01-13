@@ -13,28 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import abc
-import logging
-
-import six
-
-from fuel_ci.objects import base
-
-LOG = logging.getLogger(__name__)
+import requests
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Repository(base.BaseObject):
-    """Abstract repository object
-    """
-
-
-class GitRepository(Repository):
-
-    branch = "master"
-
-    def clone(self):
-        """Call driver specified as "cvs" to clone current repo
-        """
-        LOG.debug("Cloning repo '{0}'...".format(self.url))
-        self.driver_manager.git_clone(self)
+def download_file(url, path):
+    r = requests.get(url, stream=True)
+    if r.status_code == 200:
+        with open(path, 'wb') as f:
+            for chunk in r.iter_content():
+                f.write(chunk)

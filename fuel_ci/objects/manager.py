@@ -14,39 +14,48 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+"""
+Manager for loading objects
+"""
+
+import logging
+
 from fuel_ci.objects import artifact
 from fuel_ci.objects import artifact_storage
 from fuel_ci.objects import repo
 from fuel_ci.objects import package
 from fuel_ci.objects import mirror
 
+LOG = logging.getLogger(__name__)
 
-class ObjectIndex(object):
+
+class ObjectManager(object):
 
     REPOSITORIES_TYPES = (
         "git",
     )
 
-    def __init__(self, data):
+    _index = []
+
+    def __init__(self, data, driver_manager):
         # TODO: rewrite to using metaclasses
         self.obj_classes = {
             "artifact": artifact.Artifact,
             "artifact_storage": artifact_storage.ArtifactStorage,
+            "localfs": artifact_storage.LocalArtifactStorage,
             "git": repo.GitRepository,
             "package": package.Package,
             "mirror": mirror.Mirror
         }
         self.main_scenario = None
+        self.driver_manager = driver_manager
 
-        for section in data:
-            if section == "scenario":
-                self.set_scenario(self.load_scenario(data["scenario"]))
-                continue
-            self.add_section(section)
-            for item in data[section]:
-                self.create_object(section, item)
+        self.set_scenario(self.load_scenario(data["scenario"]))
 
-    def load_scenario(scenario):
+        for item in data["objects"]:
+            self.create_object(item)
+
+    def load_scenario(self, scenario):
         """Load scenarios specified as path to Python module
 
         :param scenario: path to scenario as "my_package.my_module.my_scenario"
@@ -76,56 +85,35 @@ class ObjectIndex(object):
         )
         return getattr(module, method)
 
-    def filter(self, section, **kwargs):
-        return list(filter(
-            lambda o: all(
-                list(map(lambda k, v: getattr(o, k) == v,
-                         kwargs.items()))
-            ),
-            getattr(self, section)
-        ))
-
-    def create_object(self, section, item):
+    def create_object(self, item):
         self.add_object(
-            section,
-            self.obj_classes[item["type"]](**item)
+            self.obj_classes[item["type"]](
+                driver_manager=self.driver_manager,
+                **item
+            )
         )
 
-    def add_object(self, section, obj):
-        getattr(self, section).append(obj)
-
-    def add_section(self, section):
-        setattr(self, section, [])
+    def add_object(self, obj):
+        self._index.append(obj)
 
     def set_scenario(self, scenario):
         self.main_scenario = scenario
 
-    def repositories(self, section="objects"):
+    def lookup(self, index=None, **kwargs):
+        use_index = index or self._index
         return list(filter(
-            lambda o: o.type in self.REPOSITORIES_TYPES,
-            getattr(self, section)
+            lambda o: all(
+                list(map(
+                    lambda kv: getattr(o, kv[0]) == kv[1],
+                    kwargs.items())
+                )
+            ),
+            use_index
         ))
 
-    def artifact_storages(self, section="objects"):
+    def lookup_by_class(self, cls, index=None):
+        use_index = index or self._index
         return list(filter(
-            lambda o: o.type == "artifact_storage",
-            getattr(self, section)
-        ))
-
-    def artifacts(self, section="objects"):
-        return list(filter(
-            lambda o: o.type == "artifact",
-            getattr(self, section)
-        ))
-
-    def mirrors(self, section="objects"):
-        return list(filter(
-            lambda o: o.type == "mirror",
-            getattr(self, section)
-        ))
-
-    def packages(self, section="objects"):
-        return list(filter(
-            lambda o: o.type == "package",
-            getattr(self, section)
+            lambda o: isinstance(o, cls),
+            use_index
         ))
