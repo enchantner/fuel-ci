@@ -1,23 +1,32 @@
-scenario: build_mirror
+#scenario: build_mirror
+scenario: check_requirements
 
 objects:
-  - name: "fuel-foo"
-    url: "https://github.com/enchantner/fuel-foo.git"
-    type: "git"
-    path: "fuel-foo"
-    meta:
-      packages_file: "sample_packages.txt"
+  # - name: "fuel-foo"
+  #   url: "https://github.com/enchantner/fuel-foo.git"
+  #   type: "git"
+  #   path: "fuel-foo"
+  #   meta:
+  #     packages_file: "sample_packages.txt"
 
   - name: "local_storage"
     type: "localfs"
     url: "poc_storage"
 
   - name: "foo"
+    version: "0.2"
+    version_qualifier: "latest"
+    storage_name: "local_storage"
+    type: "artifact"
+    dependency: true
+    comparator: "artifact_changed"
+
+  - name: "bar"
     type: "mirror"
     path: "fuel-foo"
     build: true
 
-  - name: "foo"
-    version: "0.1"
+  - name: "bar"
+    version: "0.2"
+    version_qualifier: "latest"
     type: "artifact"
-    build: true

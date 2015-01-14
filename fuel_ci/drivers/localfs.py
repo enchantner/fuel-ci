@@ -55,6 +55,7 @@ def list_versions(localpath, artifact):
     :param artifact: (Artifact) object with "name" attribute
     :returns: list of versions (strings)
     """
+    _ensure_dir_exists(localpath)
     versions_path = os.path.join(localpath, artifact.name)
     return list(map(lambda v: v.split("-")[1], os.listdir(versions_path)))
 
@@ -68,6 +69,7 @@ def download_artifact(localpath, artifact):
     :param artifact: (Artifact) object with "name" and "url" attributes
     :returns: object, passed as artifact
     """
+    _ensure_dir_exists(localpath)
     artifact = search_artifact(localpath, artifact)
     shutil.copyfile(artifact.url, artifact.path)
     return artifact
@@ -82,6 +84,7 @@ def download_artifact_meta(localpath, artifact):
            attributes
     :returns: object, passed as artifact
     """
+    _ensure_dir_exists(localpath)
     artifact = search_artifact(localpath, artifact)
     return artifact
 
@@ -93,6 +96,7 @@ def search_artifact(localpath, artifact):
     :param artifact: (Artifact) object with "name" and "url" attributes
     :returns: object, passed as artifact, if found
     """
+    _ensure_dir_exists(localpath)
     if artifact.name not in os.listdir(localpath):
         raise Exception(
             "Can't find artifact '{0}'".format(artifact)
@@ -134,12 +138,12 @@ def publish_artifact(localpath, artifact):
                      "version", "archive", "packed" and "meta" attributes
     :returns: object, passed as artifact, if found
     """
+    _ensure_dir_exists(localpath)
     if not artifact.packed:
         raise Exception("Artifact should be packed before publishing")
 
     versions_path = os.path.join(localpath, artifact.name)
 
-    _ensure_dir_exists(localpath)
     _ensure_dir_exists(versions_path)
 
     eq, art_version = _split_version(artifact.version)

@@ -104,7 +104,8 @@ class ObjectManager(object):
         return list(filter(
             lambda o: all(
                 list(map(
-                    lambda kv: getattr(o, kv[0]) == kv[1],
+                    lambda kv: hasattr(o, kv[0]) and
+                    getattr(o, kv[0]) == kv[1],
                     kwargs.items())
                 )
             ),

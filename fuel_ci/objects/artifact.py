@@ -34,6 +34,8 @@ class Artifact(base.BaseObject):
     description = None
     #: name of storage object to use
     storage_name = None
+    #: comparator to use to determine if new build is needed
+    comparator = "artifact_changed"
 
     def __init__(self, **kwargs):
         """Constructs new artifact object
@@ -52,7 +54,7 @@ class Artifact(base.BaseObject):
         """Call driver specified as "pack" to unpack current artifact
         """
         LOG.debug("Unpacking artifact '{0}'...".format(self))
-        self.drivers["pack"].unpack(self)
+        self.driver_manager.unpack_tar(self)
         self.packed = False
 
     def pack(self):

@@ -37,6 +37,7 @@ class DriverManager(object):
         #  "build_rpm_package": ,
 
         "download_artifact": localfs.download_artifact,
+        "download_artifact_meta": localfs.download_artifact_meta,
         "search_artifact": localfs.search_artifact,
         "publish_artifact": localfs.publish_artifact,
 

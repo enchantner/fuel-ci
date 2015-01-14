@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 #    Copyright 2014 Mirantis, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,24 +14,5 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-class BaseObject(object):
-    """Base object implementation
-    """
-
-    def __init__(self, driver_manager, **kwargs):
-        """Constructor for base object
-
-        :param data: artifact data specified in YAML
-        :param drivers: dict of driver categories and names to use
-        """
-        self.build = False
-        self.dependency = False
-        self.update(**kwargs)
-        self.driver_manager = driver_manager
-
-    def update(self, **kwargs):
-        """Update current object fields according to specified arguments
-        """
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+def changed(dependency, build):
+    pass
