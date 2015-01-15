@@ -17,6 +17,8 @@
 Driver for creating tar archives
 """
 
+import os
+import shutil
 import tarfile
 
 
@@ -25,12 +27,13 @@ def pack(obj):
 
     :param obj: (Artifact) object with "name" and "archive" attributes
     """
-    tar = tarfile.open(obj.name, "w")
+    tar = tarfile.open(obj.path, "w")
     for path in obj.content:
         # TODO: check if file or directory
         tar.add(path)
     tar.close()
-    obj.archive = obj.name
+    obj.archive = obj.path
+    obj.packed = True
 
 
 def unpack(obj):
@@ -38,4 +41,10 @@ def unpack(obj):
 
     :param obj: object with "archive" attribute
     """
-    pass
+    tar = tarfile.open(obj.path)
+    if os.path.exists(obj.unpacked_path):
+        shutil.rmtree(obj.unpacked_path)
+    os.mkdir(obj.unpacked_path)
+    tar.extractall(obj.unpacked_path)
+    tar.close()
+    obj.packed = False

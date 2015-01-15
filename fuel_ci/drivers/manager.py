@@ -32,6 +32,7 @@ class DriverManager(object):
 
         "download_file_http": python_requests.download_file,
         "pack_tar": python_tarfile.pack,
+        "unpack_tar": python_tarfile.unpack,
         #  "pack_cpio": cpio.pack,
         "build_python_package": python_sdist.build,
         #  "build_rpm_package": ,

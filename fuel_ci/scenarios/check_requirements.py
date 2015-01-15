@@ -13,32 +13,41 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from fuel_ci.scenarios.actions import storage
-from fuel_ci.scenarios.compare import artifact
+from fuel_ci.objects.artifact import Artifact
 
-
-COMPARATORS = {
-    "artifact_changed": artifact.changed
-}
+from fuel_ci.scenarios.actions.storage import find_storage_for_artifact
+from fuel_ci.scenarios.compare.artifact import changed as artifact_changed
 
 
 def scenario(obj_manager):
-    artifacts_check_changed = obj_manager.lookup(
-        comparator="artifact_changed",
-        dependency=True
-    )
-    for art in artifacts_check_changed:
-        art_storage = storage.find_storage_for_artifact(obj_manager, art)
-        try:
-            art_storage.search_artifact(art)
-        except Exception as exc:
-            pass
-        art_storage.download_artifact_meta(art)
-        print(art.meta)
+    build_required = False
 
-    # for f, comparator in comparators.items():
-    #     artifacts
-    #     list(map(
-    #         comparator,
-    #         obj_manager.lookup(artifact_changed=True)
-    #     ))
+    artifact_to_build = obj_manager.lookup(
+        obj_manager.lookup_by_class(Artifact),
+        build=True
+    )[0]
+    build_storage = find_storage_for_artifact(
+        obj_manager,
+        artifact_to_build
+    )
+
+    try:
+        build_storage.download_artifact_meta(artifact_to_build)
+    # TODO: exact custom exception - artifact not found
+    except Exception:
+        build_required = True
+
+    if not build_required:
+        artifacts_check_changed = obj_manager.lookup(
+            comparator="artifact_changed",
+            dependency=True
+        )
+        for art in artifacts_check_changed:
+            art_storage = find_storage_for_artifact(obj_manager, art)
+            art_storage.download_artifact_meta(art)
+            if artifact_changed(art, artifact_to_build):
+                build_required = True
+                break
+
+    if not build_required:
+        raise Exception("No changes - nothing to rebuild")

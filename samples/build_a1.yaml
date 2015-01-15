@@ -1,5 +1,5 @@
-#scenario: build_mirror
-scenario: check_requirements
+scenario: build_artifact
+#scenario: check_requirements
 
 objects:
   # - name: "fuel-foo"
@@ -14,19 +14,22 @@ objects:
     url: "poc_storage"
 
   - name: "foo"
-    version: "0.2"
+    version: "1.0"
     version_qualifier: "latest"
     storage_name: "local_storage"
     type: "artifact"
     dependency: true
-    comparator: "artifact_changed"
+    path: "foo_artifact"
+    unpacked_path: "foo_unpacked"
+    #comparator: "artifact_changed"
 
-  - name: "bar"
-    type: "mirror"
-    path: "fuel-foo"
-    build: true
+  # - name: "bar"
+  #   type: "mirror"
+  #   path: "fuel-foo"
 
-  - name: "bar"
-    version: "0.2"
+  - name: "zed"
+    version: "5.0"
     version_qualifier: "latest"
     type: "artifact"
+    build: true
+    path: "zed_artifact"

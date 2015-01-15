@@ -24,10 +24,7 @@ from fuel_ci.objects.artifact import Artifact
 def scenario(obj_manager):
     clone_repos = obj_manager.lookup_by_class(Repository)
 
-    mirror = obj_manager.lookup(
-        obj_manager.lookup_by_class(Mirror),
-        build=True
-    )[0]
+    mirror = obj_manager.lookup_by_class(Mirror)[0]
 
     list(map(lambda r: r.clone(), clone_repos))
 

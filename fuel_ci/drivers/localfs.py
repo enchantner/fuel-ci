@@ -29,20 +29,6 @@ import yaml
 LOG = logging.getLogger(__name__)
 
 
-def _split_version(artifact_version):
-    art_version = "latest"
-    eq = "=="
-    if artifact_version[0].isdigit():
-        art_version = artifact_version
-        eq = "=="
-    elif artifact_version.startswith("=="):
-        eq = "=="
-    else:
-        # TODO
-        pass
-    return eq, art_version
-
-
 def _ensure_dir_exists(path):
     if not os.path.exists(path):
         os.mkdir(path)
@@ -57,7 +43,7 @@ def list_versions(localpath, artifact):
     """
     _ensure_dir_exists(localpath)
     versions_path = os.path.join(localpath, artifact.name)
-    return list(map(lambda v: v.split("-")[1], os.listdir(versions_path)))
+    return os.listdir(versions_path)
 
 
 def download_artifact(localpath, artifact):
@@ -104,21 +90,21 @@ def search_artifact(localpath, artifact):
     versions_path = os.path.join(localpath, artifact.name)
     found_path = None
 
-    eq, art_version = _split_version(artifact.version)
-
-    if eq == "==":
-        existing_versions = list_versions(localpath, artifact)
-        if art_version not in existing_versions:
-            raise Exception(
-                "Can't find artifact '{0}' ".format(artifact)
-            )
-        found_path = os.path.join(
-            versions_path,
-            "-".join([artifact.name, art_version])
-        )
+    if artifact.version_qualifier:
+        art_version = "-".join([
+            artifact.version,
+            artifact.version_qualifier
+        ])
     else:
-        # TODO
-        pass
+        art_version = artifact.version
+    full_name = "-".join([artifact.name, art_version])
+
+    existing_versions = list_versions(localpath, artifact)
+    if full_name not in existing_versions:
+        raise Exception(
+            "Can't find artifact '{0}' ".format(artifact)
+        )
+    found_path = os.path.join(versions_path, full_name)
     artifact.url = os.path.join(found_path, artifact.name)
     meta_file = os.path.join(found_path, "metadata")
     with open(meta_file, "r") as mf:
@@ -146,44 +132,47 @@ def publish_artifact(localpath, artifact):
 
     _ensure_dir_exists(versions_path)
 
-    eq, art_version = _split_version(artifact.version)
-    art_version_wo_timestamp = art_version.split("-")[0]
+    art_version_wo_timestamp = artifact.version.split("-")[0]
     art_version = art_version_wo_timestamp + "-{0}".format(time.time())
-
-    # rewriting symlink for current version
-    latest_version_path = os.path.abspath(
+    full_path = os.path.abspath(
         os.path.join(
             versions_path,
-            "-".join((
+            "-".join([
                 artifact.name,
-                art_version_wo_timestamp,
-                "latest"
-            ))
+                art_version
+            ])
         )
     )
-    if os.path.exists(latest_version_path):
-        os.remove(latest_version_path)
 
-    exact_version_path = os.path.abspath(
-        os.path.join(
-            versions_path,
-            "-".join((artifact.name, art_version))
+    if os.path.exists(full_path):
+        shutil.rmtree(full_path)
+    os.mkdir(full_path)
+
+    if artifact.version_qualifier:
+        # rewriting symlink for qualifier
+        qualifier_path = os.path.abspath(
+            os.path.join(
+                versions_path,
+                "-".join((
+                    artifact.name,
+                    art_version_wo_timestamp,
+                    artifact.version_qualifier
+                ))
+            )
         )
-    )
-    _ensure_dir_exists(exact_version_path)
+        if os.path.exists(qualifier_path):
+            os.remove(qualifier_path)
+        os.symlink(full_path, qualifier_path)
 
-    os.symlink(exact_version_path, latest_version_path)
-
-    # TODO: eq != "=="
     art_filename = os.path.join(
-        exact_version_path,
+        full_path,
         artifact.name
     )
-    meta_file = os.path.join(exact_version_path, "metadata")
+    meta_file = os.path.join(full_path, "metadata")
     shutil.copyfile(artifact.archive, art_filename)
     with open(meta_file, "w") as mf:
         if isinstance(artifact.meta, (dict, list)):
             mf.write(yaml.dump(artifact.meta))
-        elif isinstance(artifact.meta, six.string_type):
+        elif isinstance(artifact.meta, six.string_types):
             mf.write(artifact.meta)
     return artifact

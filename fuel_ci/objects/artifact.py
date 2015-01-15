@@ -14,6 +14,7 @@
 #    under the License.
 
 import logging
+import os
 
 from fuel_ci.objects import base
 
@@ -26,6 +27,8 @@ class Artifact(base.BaseObject):
 
     #: version
     version = "latest"
+    #: version qualifier
+    version_qualifier = None
     #: url or localpath
     url = None
     #: metadata
@@ -36,6 +39,10 @@ class Artifact(base.BaseObject):
     storage_name = None
     #: comparator to use to determine if new build is needed
     comparator = "artifact_changed"
+    #: path
+    path = None
+    #: whether object is packed
+    packed = False
 
     def __init__(self, **kwargs):
         """Constructs new artifact object
@@ -47,19 +54,20 @@ class Artifact(base.BaseObject):
         super(Artifact, self).__init__(**kwargs)
         self.content = []
 
+    def add_path(self, path):
+        self.content.append(path)
+
     def add(self, obj):
-        self.content.append(obj.path)
+        self.add_path(obj.path)
 
     def unpack(self):
         """Call driver specified as "pack" to unpack current artifact
         """
         LOG.debug("Unpacking artifact '{0}'...".format(self))
         self.driver_manager.unpack_tar(self)
-        self.packed = False
 
     def pack(self):
         """Call driver specified as "pack" to pack current artifact
         """
         LOG.debug("Packing artifact '{0}'...".format(self))
         self.driver_manager.pack_tar(self)
-        self.packed = True
